@@ -81,6 +81,7 @@ bool lk_queue(_peek)(CONCAT(lk_queue_, T) * queue, T* value) {
     return true;
 }
 
+/*
 typedef lk_iteration_decision (*lk_queue(_foreach_callback))(T*);
 // iterates over the queue from newest to oldest.
 // the callback can return LK_BREAK to break, LK_CONTINUE to continue
@@ -88,8 +89,10 @@ bool lk_queue(_foreach)(CONCAT(lk_queue_, T) * queue, lk_queue(_foreach_callback
     if (!queue || !cb) {
         return false;
     }
+
     return true;
 }
+*/
 
 bool lk_queue(_pop)(CONCAT(lk_queue_, T) * queue, T* out_value) {
     if (!queue || !out_value || queue->size == 0) {
