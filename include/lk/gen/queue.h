@@ -81,7 +81,6 @@ bool lk_queue(_peek)(CONCAT(lk_queue_, T) * queue, T* value) {
     return true;
 }
 
-/*
 typedef lk_iteration_decision (*lk_queue(_foreach_callback))(T*);
 // iterates over the queue from newest to oldest.
 // the callback can return LK_BREAK to break, LK_CONTINUE to continue
@@ -89,10 +88,21 @@ bool lk_queue(_foreach)(CONCAT(lk_queue_, T) * queue, lk_queue(_foreach_callback
     if (!queue || !cb) {
         return false;
     }
-
+    size_t k = queue->readi;
+    for (size_t i = 0; i < queue->size; ++i) {
+        lk_iteration_decision dec = cb(&queue->data[k]);
+        k = (k + 1) % queue->capacity;
+        if (dec == LK_CONTINUE) {
+            continue;
+        } else if (dec == LK_BREAK) {
+            break;
+        } else {
+            // not reachable
+            assert(false);
+        }
+    }
     return true;
 }
-*/
 
 bool lk_queue(_pop)(CONCAT(lk_queue_, T) * queue, T* out_value) {
     if (!queue || !out_value || queue->size == 0) {

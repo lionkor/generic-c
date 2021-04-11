@@ -124,14 +124,17 @@ void test_queue(void) {
         lk_queue_int q;
         check(lk_queue_int_init_with_size(&q, 100));
         check(q.size == 0);
-        int x = 35;
+        int x = 0;
+        int y = 0;
         for (size_t i = 0; i < 100; ++i) {
             printf("%u: r=%u, w=%u\n", (unsigned)i, (unsigned)q.readi, (unsigned)q.writei);
             check(lk_queue_int_push(&q, &x));
             if (i % 5 == 0) {
-                check(lk_queue_int_pop(&q, &x));
+                check(lk_queue_int_pop(&q, &y));
             }
+            ++x;
         }
+        // lk_queue_int_foreach(&q, print_int);
         lk_queue_int_free(&q);
     }
 }
