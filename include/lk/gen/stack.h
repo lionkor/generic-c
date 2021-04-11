@@ -22,6 +22,7 @@
 #define lk_stack_peek CONCAT3(lk_stack_, T, _peek)
 #define lk_stack_foreach_callback CONCAT3(lk_stack_, T, _foreach_callback)
 #define lk_stack_foreach CONCAT3(lk_stack_, T, _foreach)
+#define lk_stack_pop CONCAT3(lk_stack_, T, _pop)
 
 typedef struct {
     T* data;
@@ -65,7 +66,7 @@ bool lk_stack_push(lk_stack* stack, const T* const value) {
         stack->capacity = (size_t)((double)(stack->capacity) * 1.61) + 1;
     }
     ++stack->size;
-    memcpy(&stack->data[stack->size - 1], value, sizeof(T));
+    stack->data[stack->size - 1] = *value;
     return true;
 }
 
@@ -102,8 +103,21 @@ bool lk_stack_foreach(lk_stack* stack, lk_stack_foreach_callback cb) {
         } else if (decision == LK_BREAK) {
             break;
         } else {
-            assert(!"not reachable");
+            // not reachable
+            assert(false);
         }
     }
+    return true;
+}
+
+bool lk_stack_pop(lk_stack* stack, T* out_value) {
+    if (!stack || !out_value) {
+        return false;
+    }
+    if (stack->size == 0) {
+        return false;
+    }
+    *out_value = stack->data[stack->size - 1];
+    --stack->size;
     return true;
 }

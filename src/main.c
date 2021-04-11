@@ -75,8 +75,22 @@ int main(void) {
         check(lk_stack_int_peek(&stack, &peeked));
         check(peeked == 1000);
 
+        printf("printing entire stack\n");
         lk_stack_int_foreach(&stack, print_int);
 
+        {
+            register_case("pop");
+            int outvalue = -35;
+            check(lk_stack_int_pop(&stack, &outvalue));
+            check(stack.size == 1);
+            check(outvalue == 1000);
+            check(lk_stack_int_pop(&stack, &outvalue));
+            check(stack.size == 0);
+            check(outvalue == 15);
+            check(!lk_stack_int_pop(&stack, &outvalue));
+            check(stack.size == 0);
+            check(outvalue == 15);
+        }
         lk_stack_int_free(&stack);
     }
 
