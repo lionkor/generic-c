@@ -15,7 +15,8 @@ add_definitions(-Wall
     -Wstack-protector
     -fstack-clash-protection
     -Wl,-z,noexecstack
-    -O)
+    -O
+    -Werror)
 
 set(CMAKE_C_STANDARD 11)
 

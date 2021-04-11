@@ -4,33 +4,32 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <lk/gen/common.h>
+
 #ifndef T
-#warning "T needs to be defined"
+#error "T needs to be defined"
 #define T int
 #endif // T
 
-#define CONCAT_(A, B) A##B
-#define CONCAT(A, B) CONCAT_(A, B)
-#define CONCAT3_(A, B, C) A##B##C
-#define CONCAT3(A, B, C) CONCAT3_(A, B, C)
+#define lk_stack(x) CONCAT3(lk_stack_, T, x)
 
-#define lk_stack CONCAT(lk_stack_, T)
-#define lk_stack_init CONCAT3(lk_stack_, T, _init)
-#define lk_stack_init_with_size CONCAT3(lk_stack_, T, _init_with_size)
-#define lk_stack_free CONCAT3(lk_stack_, T, _free)
-#define lk_stack_push CONCAT3(lk_stack_, T, _push)
-#define lk_stack_peek CONCAT3(lk_stack_, T, _peek)
-#define lk_stack_foreach_callback CONCAT3(lk_stack_, T, _foreach_callback)
-#define lk_stack_foreach CONCAT3(lk_stack_, T, _foreach)
-#define lk_stack_pop CONCAT3(lk_stack_, T, _pop)
+/*
+ * About reading pseudo-generic code:
+ * - lk_stack(_free) is to be read as lk_stack_T_free, so lk_stack_free for this T.
+ *   if T is int, this would be lk_stack_int_free
+ * - CONCAT(lk_stack_, T) is to be read as lk_stack_T, so with T = int lk_stack_int.
+ *
+ * When calling these, you call them by their resulting name; lk_stack(_free) on an int
+ * stack is to be called like: lk_stack_int_free
+ */
 
 typedef struct {
     T* data;
     size_t capacity;
     size_t size;
-} lk_stack;
+} CONCAT(lk_stack_, T);
 
-bool lk_stack_init_with_size(lk_stack* stack, size_t count) {
+bool lk_stack(_init_with_size)(CONCAT(lk_stack_, T) * stack, size_t count) {
     if (!stack) {
         return false;
     }
@@ -44,11 +43,11 @@ bool lk_stack_init_with_size(lk_stack* stack, size_t count) {
     return true;
 }
 
-bool lk_stack_init(lk_stack* stack) {
-    return lk_stack_int_init_with_size(stack, 1);
+bool lk_stack(_init)(CONCAT(lk_stack_, T) * stack) {
+    return lk_stack(_init_with_size)(stack, 1);
 }
 
-void lk_stack_free(lk_stack* stack) {
+void lk_stack(_free)(CONCAT(lk_stack_, T) * stack) {
     if (stack) {
         free(stack->data);
         stack->data = NULL;
@@ -57,7 +56,7 @@ void lk_stack_free(lk_stack* stack) {
     }
 }
 
-bool lk_stack_push(lk_stack* stack, const T* const value) {
+bool lk_stack(_push)(CONCAT(lk_stack_, T) * stack, const T* const value) {
     if (!stack) {
         return false;
     }
@@ -70,7 +69,7 @@ bool lk_stack_push(lk_stack* stack, const T* const value) {
     return true;
 }
 
-bool lk_stack_peek(lk_stack* stack, T* value) {
+bool lk_stack(_peek)(CONCAT(lk_stack_, T) * stack, T* value) {
     if (!stack || !value) {
         return false;
     }
@@ -82,21 +81,16 @@ bool lk_stack_peek(lk_stack* stack, T* value) {
     }
 }
 
-enum {
-    LK_BREAK,
-    LK_CONTINUE,
-};
-
-typedef int (*lk_stack_foreach_callback)(T*);
+typedef lk_iteration_decision (*lk_stack(_foreach_callback))(T*);
 // iterates over the stack from newest to oldest.
 // the callback can return LK_BREAK to break, LK_CONTINUE to continue
-bool lk_stack_foreach(lk_stack* stack, lk_stack_foreach_callback cb) {
+bool lk_stack(_foreach)(CONCAT(lk_stack_, T) * stack, lk_stack(_foreach_callback) cb) {
     if (!stack || !cb) {
         return false;
     }
     T* iter = &stack->data[stack->size - 1];
     while (iter != &stack->data[-1]) {
-        int decision = cb(iter);
+        lk_iteration_decision decision = cb(iter);
         --iter;
         if (decision == LK_CONTINUE) {
             continue;
@@ -110,7 +104,7 @@ bool lk_stack_foreach(lk_stack* stack, lk_stack_foreach_callback cb) {
     return true;
 }
 
-bool lk_stack_pop(lk_stack* stack, T* out_value) {
+bool lk_stack(_pop)(CONCAT(lk_stack_, T) * stack, T* out_value) {
     if (!stack || !out_value) {
         return false;
     }

@@ -2,6 +2,15 @@
 #include <lk/gen/stack.h>
 #undef T
 
+typedef struct {
+    int a;
+    float b;
+} mystruct;
+
+#define T mystruct
+#include <lk/gen/stack.h>
+#undef T
+
 #include <stdio.h>
 
 static bool _err = false;
@@ -20,13 +29,12 @@ static char* _case = "";
 
 #define passed() _err ? -1 : 0
 
-int print_int(int* i) {
+lk_iteration_decision print_int(int* i) {
     printf("%d\n", *i);
     return LK_CONTINUE;
 }
 
-int main(void) {
-
+void test_stack(void) {
     {
         register_case("init");
         lk_stack_int stack;
@@ -93,6 +101,13 @@ int main(void) {
         }
         lk_stack_int_free(&stack);
     }
+}
 
+void test_queue(void) {
+}
+
+int main(void) {
+    test_stack();
+    test_queue();
     return passed();
 }
