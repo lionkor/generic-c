@@ -35,7 +35,7 @@ bool lk_stack(_init_with_size)(CONCAT(lk_stack_, T) * stack, size_t count) {
     }
     stack->size = 0;
     stack->capacity = count;
-    T* data = calloc(count, sizeof(T));
+    T* data = calloc(stack->capacity, sizeof(T));
     if (!data) {
         return false;
     }
@@ -63,6 +63,11 @@ bool lk_stack(_push)(CONCAT(lk_stack_, T) * stack, const T* const value) {
     if (stack->size >= stack->capacity) {
         // grow using the golden ration, and add 1 in case of 1, since 1 * 1.61 doesn't *really* grow.
         stack->capacity = (size_t)((double)(stack->capacity) * 1.61) + 1;
+        T* data = realloc(stack->data, stack->capacity * sizeof(T));
+        if (!data) {
+            return false;
+        }
+        stack->data = data;
     }
     ++stack->size;
     stack->data[stack->size - 1] = *value;
