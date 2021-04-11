@@ -1,7 +1,7 @@
 # generic-c
 A header-only C11 library with common generic datastructures.
 
-To use, simply add the `include` directory to your include directories and include any of the `lk/gen/*` headers.
+To use, simply add the `include` directory to your include directories and include any of the `lk/gen/*` headers (see [how to use](#how-to-use) for more info).
 
 Currently implemented and tested: 
 
