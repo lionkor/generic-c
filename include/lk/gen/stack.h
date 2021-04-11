@@ -35,7 +35,7 @@ bool lk_stack(_init_with_size)(CONCAT(lk_stack_, T) * stack, size_t count) {
     }
     stack->size = 0;
     stack->capacity = count;
-    T* data = calloc(stack->capacity, sizeof(T));
+    T* data = (T*)calloc(stack->capacity, sizeof(T));
     if (!data) {
         return false;
     }

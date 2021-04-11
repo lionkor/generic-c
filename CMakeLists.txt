@@ -3,7 +3,6 @@ project(generic_c)
 add_definitions(-Wall
     -Wextra
     -pedantic
-    -fanalyzer 
     -D_FORTIFY_SOURCE=2 
     -fstack-protector-all -Wstack-protector --param ssp-buffer-size=4
     -fPIE 
@@ -16,11 +15,14 @@ add_definitions(-Wall
     -fstack-clash-protection
     -Wl,-z,noexecstack
     -O
-    -Werror)
+    -Werror
+    -fsanitize=undefined,address)
 
 set(CMAKE_C_STANDARD 11)
 
 add_executable(test src/main.c)
+
+target_link_libraries(test asan ubsan)
 
 include_directories(include)
 

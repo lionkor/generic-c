@@ -11,6 +11,14 @@ typedef struct {
 #include <lk/gen/stack.h>
 #undef T
 
+#define T int
+#include <lk/gen/queue.h>
+#undef T
+
+#define T mystruct
+#include <lk/gen/queue.h>
+#undef T
+
 #include <stdio.h>
 
 static bool _err = false;
@@ -36,7 +44,7 @@ lk_iteration_decision print_int(int* i) {
 
 void test_stack(void) {
     {
-        register_case("init");
+        register_case("stack init");
         lk_stack_int stack;
         check(lk_stack_int_init(&stack));
         check(stack.capacity == 1);
@@ -45,7 +53,7 @@ void test_stack(void) {
         lk_stack_int_free(&stack);
     }
     {
-        register_case("init with size");
+        register_case("stack init with size");
         lk_stack_int stack;
         check(lk_stack_int_init_with_size(&stack, 10));
         check(stack.capacity == 10);
@@ -54,7 +62,7 @@ void test_stack(void) {
         lk_stack_int_free(&stack);
     }
     {
-        register_case("push");
+        register_case("stack push");
         lk_stack_int stack;
         check(lk_stack_int_init(&stack));
         check(stack.capacity == 1);
@@ -87,7 +95,7 @@ void test_stack(void) {
         lk_stack_int_foreach(&stack, print_int);
 
         {
-            register_case("pop");
+            register_case("stack pop");
             int outvalue = -35;
             check(lk_stack_int_pop(&stack, &outvalue));
             check(stack.size == 1);
@@ -104,6 +112,28 @@ void test_stack(void) {
 }
 
 void test_queue(void) {
+    {
+        register_case("queue init");
+        lk_queue_int q;
+        check(lk_queue_int_init(&q));
+        check(q.size == 0);
+        lk_queue_int_free(&q);
+    }
+    {
+        register_case("queue push");
+        lk_queue_int q;
+        check(lk_queue_int_init_with_size(&q, 100));
+        check(q.size == 0);
+        int x = 35;
+        for (size_t i = 0; i < 100; ++i) {
+            printf("%u: r=%u, w=%u\n", (unsigned)i, (unsigned)q.readi, (unsigned)q.writei);
+            check(lk_queue_int_push(&q, &x));
+            if (i % 5 == 0) {
+                check(lk_queue_int_pop(&q, &x));
+            }
+        }
+        lk_queue_int_free(&q);
+    }
 }
 
 int main(void) {
