@@ -24,15 +24,15 @@ typedef struct {
 static bool _err = false;
 static char* _case = "";
 #define register_case(x) _case = x
-#define check(x)                                                     \
-    do {                                                             \
-        bool _ok = (x);                                              \
-        if (_ok) {                                                   \
-            printf("%s → \x1b[;32msuccess\x1b[;m: %s\n", _case, #x); \
-        } else {                                                     \
-            printf("%s → \x1b[;31mfailure\x1b[;m: %s\n", _case, #x); \
-            _err = true;                                             \
-        }                                                            \
+#define check(x)                                                            \
+    do {                                                                    \
+        bool _ok = (x);                                                     \
+        if (_ok) {                                                          \
+            /* printf("%s → \x1b[;32msuccess\x1b[;m: %s\n", _case, #x);*/ \
+        } else {                                                            \
+            printf("%s → \x1b[;31mfailure\x1b[;m: %s\n", _case, #x);        \
+            _err = true;                                                    \
+        }                                                                   \
     } while (0)
 
 #define passed() _err ? -1 : 0
@@ -91,8 +91,8 @@ void test_stack(void) {
         check(lk_stack_int_peek(&stack, &peeked));
         check(peeked == 1000);
 
-        printf("printing entire stack\n");
-        lk_stack_int_foreach(&stack, print_int);
+        //printf("printing entire stack\n");
+        //lk_stack_int_foreach(&stack, print_int);
 
         {
             register_case("stack pop");
@@ -127,7 +127,7 @@ void test_queue(void) {
         int x = 0;
         int y = 0;
         for (size_t i = 0; i < 100; ++i) {
-            printf("%u: r=%u, w=%u\n", (unsigned)i, (unsigned)q.readi, (unsigned)q.writei);
+            //printf("%u: r=%u, w=%u\n", (unsigned)i, (unsigned)q.readi, (unsigned)q.writei);
             check(lk_queue_int_push(&q, &x));
             if (i % 5 == 0) {
                 check(lk_queue_int_pop(&q, &y));
@@ -139,8 +139,65 @@ void test_queue(void) {
     }
 }
 
+#define T int
+#include <lk/gen/vector.h>
+#undef T
+
+bool is_bigger_50(const int* i) {
+    return *i > 50;
+}
+
+void test_vector(void) {
+    {
+        register_case("vector init");
+        lk_vector_int q;
+        check(lk_vector_int_init(&q));
+        check(q.size == 0);
+        lk_vector_int_free(&q);
+    }
+    {
+        register_case("vector push");
+        lk_vector_int q;
+        check(lk_vector_int_init(&q));
+        check(q.size == 0);
+        for (size_t i = 0; i < 100; ++i) {
+            check(lk_vector_int_push(&q, (int*)&i));
+        }
+        for (size_t i = 0; i < 100; ++i) {
+            check(q.data[i] == (int)i);
+        }
+        check(lk_vector_int_erase(&q, 50));
+        check(q.size == 99);
+        for (size_t i = 0; i < 50; ++i) {
+            check(q.data[i] == (int)i);
+        }
+        check(q.data[50] == 51);
+        for (size_t i = 51; i < 99; ++i) {
+            //printf("i = %d, data[i] = %d\n", (int)i, q.data[i]);
+            check(q.data[i] == (int)i + 1);
+        }
+        check(q.capacity > 100);
+        //printf("capacity: %u, size: %u\n", (unsigned)q.capacity, (unsigned)q.size);
+
+        check(lk_vector_int_erase_if(&q, is_bigger_50));
+
+        //printf("size: %u\n", (unsigned)q.size);
+        check(q.size == 50);
+
+        for (size_t i = 0; i < 50; ++i) {
+            check(q.data[i] == (int)i);
+        }
+
+        lk_vector_int_free(&q);
+    }
+}
+
 int main(void) {
     test_stack();
     test_queue();
+    test_vector();
+    if (passed() == 0) {
+        puts("passed!");
+    }
     return passed();
 }
