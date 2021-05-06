@@ -7,6 +7,7 @@ Currently implemented and tested:
 
 - `lk/gen/stack.h` - LIFO datastructure.
 - `lk/gen/queue.h` - FIFO datastructure.
+- `lk/gen/vector.h` - Random-Access dynamic size datastructure.
 
 ## How to use
 
